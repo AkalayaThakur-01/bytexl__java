@@ -1,8 +1,7 @@
-import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-class Employee implements Serializable {
-    private static final long serialVersionUID = 1L;
+class Employee {
     private int id;
     private String name;
     private String designation;
@@ -21,11 +20,10 @@ class Employee implements Serializable {
     }
 }
 
-public class EmployeeManagementSystem {
-    private static final String FILE_NAME = "employees.dat";
-
+public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        ArrayList<Employee> employees = new ArrayList<>();
         int choice;
 
         do {
@@ -39,66 +37,41 @@ public class EmployeeManagementSystem {
 
             switch (choice) {
                 case 1:
-                    addEmployee(sc);
+                    System.out.print("Enter Employee ID: ");
+                    int id = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("Enter Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Enter Designation: ");
+                    String desig = sc.nextLine();
+                    System.out.print("Enter Salary: ");
+                    double salary = sc.nextDouble();
+                    sc.nextLine();
+
+                    employees.add(new Employee(id, name, desig, salary));
+                    System.out.println("Employee added successfully.");
                     break;
+
                 case 2:
-                    displayEmployees();
+                    if (employees.isEmpty()) {
+                        System.out.println("No employee records found.");
+                    } else {
+                        System.out.println("\n----- Employee Records -----");
+                        for (Employee e : employees) {
+                            System.out.println(e);
+                        }
+                    }
                     break;
+
                 case 3:
                     System.out.println("Exiting system...");
                     break;
+
                 default:
                     System.out.println("Invalid choice! Try again.");
             }
         } while (choice != 3);
-    }
 
-    private static void addEmployee(Scanner sc) {
-        try (ObjectOutputStream oos = new AppendableObjectOutputStream(new FileOutputStream(FILE_NAME, true))) {
-            System.out.print("Enter Employee ID: ");
-            int id = sc.nextInt();
-            sc.nextLine();
-            System.out.print("Enter Name: ");
-            String name = sc.nextLine();
-            System.out.print("Enter Designation: ");
-            String desig = sc.nextLine();
-            System.out.print("Enter Salary: ");
-            double salary = sc.nextDouble();
-
-            Employee emp = new Employee(id, name, desig, salary);
-            oos.writeObject(emp);
-            System.out.println("Employee added successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void displayEmployees() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-            System.out.println("\n----- Employee Records -----");
-            while (true) {
-                Employee emp = (Employee) ois.readObject();
-                System.out.println(emp);
-            }
-        } catch (EOFException e) {
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-class AppendableObjectOutputStream extends ObjectOutputStream {
-    public AppendableObjectOutputStream(OutputStream out) throws IOException {
-        super(out);
-    }
-
-    @Override
-    protected void writeStreamHeader() throws IOException {
-        File file = new File(EmployeeManagementSystem.FILE_NAME);
-        if (file.length() == 0) {
-            super.writeStreamHeader();
-        } else {
-            reset();
-        }
+        sc.close();
     }
 }
