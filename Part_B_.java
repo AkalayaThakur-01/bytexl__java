@@ -1,8 +1,7 @@
 import java.io.*;
 import java.util.Scanner;
-import java.io.Serializable;
 
-class Student implements Serializable {
+public class Student implements Serializable {
     private static final long serialVersionUID = 1L;
     private int studentID;
     private String name;
@@ -18,9 +17,7 @@ class Student implements Serializable {
     public String toString() {
         return "StudentID: " + studentID + ", Name: " + name + ", Grade: " + grade;
     }
-}
 
-public class StudentSerialization {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -33,16 +30,21 @@ public class StudentSerialization {
 
         Student student = new Student(id, name, grade);
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("student.dat"))) {
+        byte[] data = null;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.writeObject(student);
-            System.out.println("Student object serialized successfully.");
+            oos.flush();
+            data = baos.toByteArray();
+            System.out.println("Student object serialized in memory successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("student.dat"))) {
+        
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
             Student deserializedStudent = (Student) ois.readObject();
-            System.out.println("Deserialized Student:");
+            System.out.println("\nDeserialized Student:");
             System.out.println(deserializedStudent);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
